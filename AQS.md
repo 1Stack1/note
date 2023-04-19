@@ -12,7 +12,7 @@ CLH 锁是对自旋锁的一种改进，是一个虚拟的双向队列（虚拟�
 
 # 原理
 
-![image-20230419183522319](D:\用户\Desktop\找offer\笔记\JUC\AQS.assets\image-20230419183522319.png)
+![image-20230419190041184](AQS.assets/image-20230419190041184.png)
 
 ## 同步状态state
 
@@ -35,11 +35,11 @@ protected final boolean compareAndSetState(int expect, int update) {
 }
 ```
 
-![image-20230413190443108](C:\Users\li'ce'han\AppData\Roaming\Typora\typora-user-images\image-20230413190443108.png)
+![image-20230419185922426](AQS.assets/image-20230419185922426.png)
 
 `如reentrantLock`
 
-![image-20230413190516963](C:\Users\li'ce'han\AppData\Roaming\Typora\typora-user-images\image-20230413190516963.png)
+![image-20230419185941383](AQS.assets/image-20230419185941383.png)
 
 `如同步工具类`
 
