@@ -93,7 +93,7 @@ waitStatus 有下面几个枚举值：
 
   - 其中第一个 Node 称为 Dummy（哑元）或哨兵，用来占位，并不关联线程
 
-    ![image-20230414152227874](C:\Users\li'ce'han\AppData\Roaming\Typora\typora-user-images\image-20230414152227874.png)
+    ![image-20230419190244474](AQS.assets/image-20230419190244474.png)
 
     当前线程进入 acquireQueued 逻辑
 
@@ -103,7 +103,7 @@ waitStatus 有下面几个枚举值：
 
     3.进入 shouldParkAfterFailedAcquire 逻辑，将前驱 node，即 head 的 waitStatus 改为 -1，这次返回 false
 
-    ![image-20230414152413773](C:\Users\li'ce'han\AppData\Roaming\Typora\typora-user-images\image-20230414152413773.png)
+    ![image-20230419190325126](AQS.assets/image-20230419190325126.png)
 
 4. shouldParkAfterFailedAcquire 执行完毕回到 acquireQueued ，再次 tryAcquire 尝试获取锁，当然这时
    state 仍为 1，失败
@@ -113,11 +113,11 @@ waitStatus 有下面几个枚举值：
 
 6. 进入 parkAndCheckInterrupt， Thread-1 park（灰色表示）
 
-  ![image-20230414152444166](C:\Users\li'ce'han\AppData\Roaming\Typora\typora-user-images\image-20230414152444166.png)
+  ![image-20230419190337744](AQS.assets/image-20230419190337744.png)
 
   再次有多个线程经历上述过程竞争失败，变成这个样子
 
-  ![image-20230414152505815](C:\Users\li'ce'han\AppData\Roaming\Typora\typora-user-images\image-20230414152505815.png)
+  ![image-20230419190358666](AQS.assets/image-20230419190358666.png)
 
 #### 源码
 
@@ -497,13 +497,13 @@ Thread-0 释放锁，进入 tryRelease 流程，如果成功
 
 * state = 0
 
-  ![image-20230414155455974](C:\Users\li'ce'han\AppData\Roaming\Typora\typora-user-images\image-20230414155455974.png)
+  ![image-20230419190428798](AQS.assets/image-20230419190428798.png)
 
 当前队列不为 null，并且 head 的 waitStatus = -1，进入 unparkSuccessor 流程
 找到队列中离 head 最近的一个 Node（没取消的），unpark 恢复其运行，本例中即为 Thread-1
 回到 Thread-1 的 acquireQueued 流程
 
-![image-20230414155521881](C:\Users\li'ce'han\AppData\Roaming\Typora\typora-user-images\image-20230414155521881.png)
+![image-20230419190444473](AQS.assets/image-20230419190444473.png)
 
 如果加锁成功（没有竞争），会设置
 
@@ -514,7 +514,7 @@ Thread-0 释放锁，进入 tryRelease 流程，如果成功
 如果这时候有其它线程来竞争（非公平的体现），例如这时有 Thread-4 来了
 如果不巧又被 Thread-4 占了先
 
-![image-20230414155615727](C:\Users\li'ce'han\AppData\Roaming\Typora\typora-user-images\image-20230414155615727.png)
+![image-20230419190501636](AQS.assets/image-20230419190501636.png)
 
 * Thread-4 被设置为 exclusiveOwnerThread，state = 1
 * Thread-1 再次进入 acquireQueued 流程，获取锁失败，重新进入 park 阻塞
@@ -762,16 +762,16 @@ static final class NonfairSync extends Sync {
 ### 流程
 
 刚开始，permits（state）为 3，这时 5 个线程来获取资源
-![image-20230414180950058](C:\Users\li'ce'han\AppData\Roaming\Typora\typora-user-images\image-20230414180950058.png)
+![image-20230419190537899](AQS.assets/image-20230419190537899.png)
 假设其中 Thread-1，Thread-2，Thread-4 cas 竞争成功，而 Thread-0 和 Thread-3 竞争失败，进入 AQS 队列
 park 阻塞
 
-![image-20230414181002944](C:\Users\li'ce'han\AppData\Roaming\Typora\typora-user-images\image-20230414181002944.png)这时 Thread-4 释放了 permits，状态如下
+![image-20230419190549899](AQS.assets/image-20230419190549899.png)这时 Thread-4 释放了 permits，状态如下
 
-![image-20230414181014562](C:\Users\li'ce'han\AppData\Roaming\Typora\typora-user-images\image-20230414181014562.png)接下来 Thread-0 竞争成功，permits 再次设置为 0，设置自己为 head 节点，断开原来的 head 节点，unpark 接
+![image-20230419190603894](AQS.assets/image-20230419190603894.png)接下来 Thread-0 竞争成功，permits 再次设置为 0，设置自己为 head 节点，断开原来的 head 节点，unpark 接
 下来的 Thread-3 节点，但由于 permits 是 0，因此 Thread-3 在尝试不成功后再次进入 park 状态
 
-![image-20230414181027393](C:\Users\li'ce'han\AppData\Roaming\Typora\typora-user-images\image-20230414181027393.png)
+![image-20230419190617127](AQS.assets/image-20230419190617127.png)
 
 ### 源码
 
