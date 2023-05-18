@@ -146,7 +146,7 @@ public void set(T value) {
 
 //Class:ThreadLocal
 void createMap(Thread t, T firstValue) {
-    t.threadLocals = new ThreadLocalMap(this, firstValue);
+    t.threadLocals = new ThreadLocalMap(this, firstValue);//初始容量为16
 }
 ```
 
