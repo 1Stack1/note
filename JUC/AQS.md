@@ -153,7 +153,7 @@ def addWaiter(Node mode):
             之前查询tail指向的节点的next指针指向创建的node            
             return 创建的node;
     enq(创建的节点) ---阻塞队列创建哨兵节点并插入创建的节点
-    return 创建的接待你;
+    return 创建的节点;
 def enq(final Node node) {
     while true:
         if tail指向null:
@@ -176,7 +176,7 @@ def acquireQueued(final Node node, int arg):
         		head指向该节点,该节点的thread和prev属性设置为null,前驱节点设置为null,failed=false
         		return interrupted
 			
-			// 说明p为头节点且当前没有获取到锁（可能是非公平锁被抢占了）或者是p不为头结点，这个时候就要判断当前node是否要被阻塞（被阻塞条件：前驱节点的waitStatus为-1），防止无限循环浪费资源。具体两个方法下面细细分析
+			// 说明p(前驱节点)为头节点且当前没有获取到锁（可能是非公平锁被抢占了）或者是p不为头结点，这个时候就要判断当前node是否要被阻塞（被阻塞条件：前驱节点的waitStatus为-1），防止无限循环浪费资源。具体两个方法下面细细分析
 			if (shouldParkAfterFailedAcquire(p, node) //当该node应该被阻塞执行下一个条件即将该线程中断
                 && parkAndCheckInterrupt())
 				interrupted = true;
@@ -389,13 +389,16 @@ final boolean acquireQueued(final Node node, int arg) {
 			// 获取当前节点的前驱节点
 			final Node p = node.predecessor();
 			// 如果p是头结点，说明当前节点在真实数据队列的首部，就尝试获取锁（别忘了头结点是虚节点）
-			if (p == head && tryAcquire(arg)) {
+			if (p == head && tryAcquire(arg)) {//在阻塞之前如果是head.next的节点，进行CAS4次
+                							//第一次在acquire()进行，第二次在tryAcuire()进行，
+                							//三四次在这里进行调用tryAcquire()两次
+                							//如果不是第一个节点,只会进行前两次CAS操作
 				// 获取锁成功，头指针移动到当前node
 				setHead(node);
 				p.next = null; // help GC
 				failed = false;
 				return interrupted;
-			}
+			}        
 			// 说明p为头节点且当前没有获取到锁（可能是非公平锁被抢占了）或者是p不为头结点，这个时候就要判断当前node是否要被阻塞（被阻塞条件：前驱节点的waitStatus为-1），防止无限循环浪费资源。具体两个方法下面细细分析
 			if (shouldParkAfterFailedAcquire(p, node) //当该node应该被阻塞执行下一个条件即将该线程中断
                 && parkAndCheckInterrupt())
@@ -616,7 +619,7 @@ private void unparkSuccessor(Node node) {
 	}
 	// 如果s!=null，而且状态<=0，就把当前s节点unpark
 	if (s != null)
-		LockSupport.unpark(s.thread);//当前线程一被unpark就会继续执行acquireQueued方法(tryAcquire中调用的，因为parkAndCheckInterrupt方法被park了)，如果tryAcquire成功就会将该s.waiteSate变为0，然后将s作为head,将node=null方便GC
+		LockSupport.unpark(s.thread);//当前线程一被unpark就会继续执行acquireQueued方法(tryAcquire中调用的，因为parkAndCheckInterrupt方法被park了)，此时头节点的waitStatus为0，可以实现两次tryAcquire().
 }
 ```
 
