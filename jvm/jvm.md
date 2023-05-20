@@ -24,7 +24,9 @@ lJdk1.7和1.8的区别
 
 * 1.8移除了永久代，把数据存储到了本地内存的元空间中，防止内存溢出
 
-![image-20230518183335103](jvm.assets/image-20230518183335103.png)
+![Java 运行时数据区域（JDK1.7）](jvm.assets/java-runtime-data-areas-jdk1.7.png)
+
+![Java 运行时数据区域（JDK1.8 ）](jvm.assets/java-runtime-data-areas-jdk1.8.png)
 
 > JDK8的JVM为什么取消了堆中的永久代 / 方法区
 
@@ -73,6 +75,12 @@ JDK 8取消了永久代主要是为了解决永久代的一些问题。永久代
   ​        栈空间不足：java.lang.StackOverFlowError。
 
 ​			堆空间不足：java.lang.OutOfMemoryError。
+
+> 栈可能出现的错误
+
+**`StackOverFlowError`：** 若栈的内存大小不允许动态扩展，那么当线程请求栈的深度超过当前 Java 虚拟机栈的最大深度的时候，就抛出 `StackOverFlowError` 错误。
+
+**`OutOfMemoryError`：** 如果栈的内存大小可以动态扩展， 如果虚拟机在动态扩展栈时无法申请到足够的内存空间，则抛出`OutOfMemoryError`异常。
 
 ## 方法区
 
